@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>SEP-0008 Regulated Assets Sample</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        .word-break-all {
+            word-break: break-all;
+        }
+
+        .log-line {
+            border-bottom: solid 1px #ccc;
+        }
+
+        #log a[target=_blank]:after {
+            content: "";
+            display: inline-block;
+            background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAY1BMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmaHTeAAAAIHRSTlMAyRV84tFWK9OpJt+gPNm5nJc2HAbtvbGhjINdVUUvDLxAdg0AAABsSURBVBjThcpFDsAwDERRlxsop0y5/ykbO7TsX1iaJ0Os16Yc1CZyTEy8RQHWniV2vTAS6AdcaWKB+13o4hYGqrDrFHiPEDdmYaKtInS4hyFCs5p/xgg4+KSFJsAi8e7zkdmkHsmzxNXR738fNngHiokgKMoAAAAASUVORK5CYII=) no-repeat;
+            width: 16px;
+            height: 16px;
+            margin-bottom: -2px;
+            margin-left: 5px;
+        }
+
+        .jumbotron {
+            padding: 2em;
+        }
+
+        .show-auth {
+            display: none;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/0.11.0/stellar-sdk.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script src="./js/toml.js"></script>
+    <script src="./js/app.js"></script>
+
+</head>
+
+<body>
+
+
+<div class="jumbotron">
+    <div class="container">
+        <h1>SEP-0008 Sample</h1>
+    </div>
+</div>
+
+<div id="start" class="container">
+
+    <h2>Create account</h2>
+    <form id="createAccountForm">
+        <p>Create and fund a new multisig account with a trustline to the
+            regulated <a href="https://stellar.expert/explorer/testnet/asset/{{ASSET_CODE}}-{{ASSET_ISSUER}}">{{ASSET_CODE}}-{{ASSET_ISSUER}}</a>
+            asset on testnet.</p>
+        <button type="submit" class="btn btn-secondary">Create account</button>
+    </form>
+
+    <hr>
+
+    <h2>Sign in</h2>
+    <form id="signInForm">
+        <div class="form-row align-items-center">
+            <div class="col-auto">
+                <label class="sr-only" for="inlineFormInputGroup">Username</label>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Secret</div>
+                    </div>
+                    <input name="secret" type="text" class="form-control" id="inlineFormInputGroup" placeholder="S...">
+                </div>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-secondary mb-2">Sign in</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+
+<div id="wallet" class="container" style="display:none">
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Account Details</h2>
+            <p>
+                <strong>Public Key</strong>: <span class="word-break-all" id="publicKey"></span>
+            </p>
+            <p>
+                <strong>Secret Key</strong>: <span class="word-break-all" id="secretKey"></span>
+            </p>
+            <div class="show-auth">
+                <p>
+                    <strong>Thresholds:</strong> low=<span id="low_threshold"></span>, medium=<span id="med_threshold"></span>, high=<span id="high_threshold"></span>
+                </p>
+
+                <strong>Signers:</strong>
+                <ul id="signers"></ul>
+
+
+                <strong>Balances:</strong>
+                <ul id="balances"></ul>
+
+            </div>
+
+        </div>
+        <div class="col-md-4">
+            <div class=" show-auth">
+                <h2>Send</h2>
+
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="send_to">To</label>
+                        <input class="form-control" id="send_to" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="send_amount">Amount</label>
+                        <input value="1" class="form-control" id="send_amount" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="send_asset">Asset</label>
+
+                        <select class="form-control" id="send_asset">
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="send_memo">Memo (will trigger behaviour of approval server)</label>
+                        <select class="form-control" id="send_memo">
+                            <option value="success">success</option>
+                            <option value="revised">revised</option>
+                            <option value="pending">pending</option>
+                            <option value="action_required">action_required</option>
+                            <option value="rejected">rejected</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Send</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h2>Log</h2>
+            <div id="log" style="display:block;overflow:auto;height:400px"></div>
+        </div>
+    </div>
+
+
+</div> <!-- /container -->
+
+
+<div id="modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="message">
+
+                </p>
+                <div id="rawXDRBlock">
+                    <form id="rawXDRForm">
+                        <textarea class="form-control" id="rawXDR"></textarea>
+                        <input type="hidden" id="approvalServerUrl" value="">
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a id="XDRViewer" href="#" target="_blank">
+                    <button type="button" class="btn btn-primary">XDRViewer</button>
+                </a>
+                <a id="actionUrl" href="#" target="_blank">
+                    <button type="button" class="btn btn-primary">Follow Instructions</button>
+                </a>
+                <a id="submitRawXDRButton" href="javascript:$('#rawXDRForm').submit();$('.modal').modal('hide');">
+                    <button type="button" class="btn btn-primary">Send again</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

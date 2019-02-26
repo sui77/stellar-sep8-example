@@ -1,0 +1,13 @@
+[[CURRENCIES]]
+code="{{ASSET_CODE}}"
+issuer="{{ASSET_ISSUER}}"
+display_decimals=2
+name="SEP-0008 GOAT"
+regulated=true
+approval_server="{{BASE_URL}}/tx_approve"
+approval_criteria="Approval depends on the exact value of the transaction memo."
+
+OUR_SIGNERS = [
+    "ALL http://example.com/tx_approve",
+    "{{ASSET_ISSUER}} {{BASE_URL}}/tx_approve"
+]

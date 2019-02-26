@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>SEP-0008 Regulated Assets Sample</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/0.11.0/stellar-sdk.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script>
+        $(function () {
+            $('.js-approve').click(function () {
+                $.post('useraction', {txhash: '{{GET_txhash}}', submit: $(this).data('submit')})
+                    .done(() => {
+                            $('#button').hide();
+                            $('#done').show();
+                        }
+                    );
+            });
+
+        });
+    </script>
+</head>
+
+<body>
+
+
+<div class="jumbotron">
+    <div class="container">
+        <h1>Action required</h1>
+        <p>You must complete an action before the transaction can be approved. It could be something like accepting additional terms, solving a CAPTHCA or performing another 2FA authentication. In this example all you have to do is clicking
+            the red action button.</p>
+    </div>
+</div>
+
+<div id="button" class="container" style="text-align:center">
+    <button type="submit" class="btn btn-secondary btn-danger js-approve" data-submit="false">ACTION</button>
+</div>
+
+<div id="done" class="container" style="text-align:center;display:none;">
+    Action confirmed. You can close this page, return to your wallet and resubmit the transaction.
+    <br><br>
+    <button type="submit"  class="btn btn-secondary js-approve" onClick="window.close()">Close</button>
+</div>
+
+
+</body>
+</html>

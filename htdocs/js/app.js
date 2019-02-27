@@ -78,7 +78,7 @@ async function loadAccount(keypair) {
 
         $('#signers').html('');
         for (signer in account.signers) {
-            $('#signers').append('<li>' + account.signers[signer].public_key.substr(0, 6) + ', weight=' + account.signers[signer].weight);
+            $('#signers').append('<li>' + account.signers[signer].key.substr(0, 6) + ', weight=' + account.signers[signer].weight);
         }
 
         $('#balances').html('');
